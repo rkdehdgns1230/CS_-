@@ -1,6 +1,13 @@
 ## Protocol
 통신 프로토콜 또는 통신 규약은 컴퓨터나 원거리 통신 장비 사이에서 메시지를 주고 받는 양식과 규칙의 체계를 뜻한다.
 
+## Internet and internet
+
+## ISP (Internet Server Provider)
+ 
+## TCP/IP and OSI 7 layer
+
+ 
 ## IPv4
 IPv4는 internet protocol version 4를 뜻하며, 전 세계적으로 사용된 첫 번째 internet protocol이다. IPv4는 패킷 교환 네트워크(packet switching network)상에서 데이터를 교환하기 위해 사용하는 프로토콜이다.  
   
@@ -29,6 +36,9 @@ router <-> gateway,
 ## DNS(Domain Name Server)
 DNS는 hostnames을 IP address로 변환해주는 서버를 의미합니다.  
 ex) www.facebook.com -> 173.252.110.27
+
+## DHCP(Dynamic Host Configuration Protocol)
+
 
 
 ## References
