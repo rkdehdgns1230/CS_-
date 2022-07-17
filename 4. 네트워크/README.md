@@ -47,6 +47,13 @@ Default gateway는 이 PC에 대한 모든 internet IP packets를 주고받을 �
   
 router <-> gateway, 
 
+- CIDR (Classless Inter-Domain Routing)
+CIDR은 1993년 IETF에 의해 도입된 방식으로 IP address를 효율적으로 할당할 수 있게한다. 기존의 IP address 할당 방식이던 network class를 대체했고, 클래스 없는 도메인간 라우팅 기법이라고 불린다.  
+  
+e.g. x.x.x.x/24, x.x.x.x/16  
+
+위와 같이 기존의 IP address에 /24, /16 같은 것을 붙여서 사용하며, IP 주소에서 이 숫자만큼의 비트를 묶어 하나의 CIDR 그룹에 포함된다고 판단한다.
+
 ## DNS(Domain Name System)
   
 DNS는 IP 네트워크에서 사용하는 시스템으로 domain name을 IP address로 변환해주는 역할을 수행한다. 이러한 DNS를 운영하는 서버를 네임서버(Name Server)라고 하며, 규모가 있는 사이트의 경우 네임 서버를 자체적으로 운영하기도 한다고 한다.  
