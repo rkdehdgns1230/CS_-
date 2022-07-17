@@ -41,19 +41,32 @@ SubnetMask는 Client(PC)가 연결되어있는 Subnet의 크기에 기반한다.
 IPv4 Subnet Mask는 32bits로 규격화된다. (1s, 0s의 sequence left(MSB) -> right(LSB))
 
 서브넷마스크는 패킷이 이 서브넷에 속하는지 아닌지를 쉽게 판단하기 위해서 IP address를 mask(filter)하기 위해 사용한다.
-
-- Default gateway
+  
+• **Default gateway**  
 Default gateway는 이 PC에 대한 모든 internet IP packets를 주고받을 전용 internet router이다. 집이나 사무실같은 환경에서 default gateway는 local network를 Internet으로 연결하는 DSL router나 cable router같은 device를 의미한다. (Access network에서의 Router를 의미한다고 이해했다.)
   
 router <-> gateway, 
-
-- CIDR (Classless Inter-Domain Routing)
+  
+• **CIDR (Classless Inter-Domain Routing)**  
+  
 CIDR은 1993년 IETF에 의해 도입된 방식으로 IP address를 효율적으로 할당할 수 있게한다. 기존의 IP address 할당 방식이던 network class를 대체했고, 클래스 없는 도메인간 라우팅 기법이라고 불린다.  
   
 e.g. x.x.x.x/24, x.x.x.x/16  
 
-위와 같이 기존의 IP address에 /24, /16 같은 것을 붙여서 사용하며, IP 주소에서 이 숫자만큼의 비트를 묶어 하나의 CIDR 그룹에 포함된다고 판단한다.
+위와 같이 기존의 IP address에 /24, /16 같은 수를 붙이는 표기법을 사용하며, IP 주소에서 이 숫자만큼의 비트를 묶어 하나의 CIDR 그룹에 포함된다고 판단한다.  
+  
+• **VLSM (Variable-Length Subnet Mask)**  
+  
+CIDR는 VLSM(Variable-Length Subnet Mask)을 사용하며, 이는 기존의 FLSM(Fixed Length Subnet Mask)와 같이 고정된 개수로 서브넷을 할당하는 비효율 적인 방식을 해결할 수 있다.
 
+123.234.100.56/24
+IPv4 address (32bits): 123.234.100.56  
+Subnet mask with 24 ones  
+11111111.11111111.11111111.00000000 => 255.255.255.0  
+
+=> Subnet size = 2^(32 - 24) = 2^8 = 256 => 256개의 IPv4 address가 서브넷에 존재한다.  
+이처럼 CIDR을 사용하는 경우 동적으로 서브넷사이즈(IP address의 수)를 조절할 수 있게 된다.
+  
 ## DNS(Domain Name System)
   
 DNS는 IP 네트워크에서 사용하는 시스템으로 domain name을 IP address로 변환해주는 역할을 수행한다. 이러한 DNS를 운영하는 서버를 네임서버(Name Server)라고 하며, 규모가 있는 사이트의 경우 네임 서버를 자체적으로 운영하기도 한다고 한다.  
