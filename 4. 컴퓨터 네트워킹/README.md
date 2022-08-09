@@ -48,6 +48,7 @@ bandwidth(transmission rate, Mbps Gbps): 단위 시간당 실어나를 수 있�
 shared / dedicated
 
 #### Digital subscriber line (DSL):  
+![image](https://user-images.githubusercontent.com/68600592/183641778-e1d5109f-4736-4564-ba24-e57c6f44c1c8.png)
 
 전화 회사에서 제공해주는 access network  
 각각의 집마다 dedicated line(with different frequencies)을 통해 central office와 연결된다. 
@@ -59,6 +60,7 @@ splitter를 이용해 전화선과 인터넷선을 분할한다.
 DSLAM (DSL access multiplexer): 일종의 multiplexer, 모든 집의 회선을 받아 multiplexing 전화선이면 telephone network로 인터넷 선이면 인터넷쪽(ISP)로 연결
 
 #### Cable network: 
+![image](https://user-images.githubusercontent.com/68600592/183641936-80fcc065-5591-4de2-a0bb-d36e2d480c94.png)
 
 cable network 회사를 통해 access network를 제공받는 방식, 여러 가구가 shared link(bandwidth가 굉장히 큼)를 사용해 연결된다.
 
@@ -71,6 +73,7 @@ CMTS (cable modem termination system): cable modem에 연결된 hosts가 인터�
 HFC (hybrid fiber coax): CMTS 또한 여러 개가 존재하여 네트워크를 형성하는데, CMTS 끼리는 굉장히 큰 대역폭을 갖는 fiber 회선으로 연결되고, cable model와 CMTS가 coax로 연결되어 HFC라는 이름으로도 cable network가 불린다고 한다.
 
 #### home network:
+![image](https://user-images.githubusercontent.com/68600592/183641978-c005790b-e213-4f5b-a33c-b3519377714f.png)
 
 집을 internet에 연결하는건 cable network or DSL, 집 내부에는 home network가 존재한다. 여러 개의 pc, smartphone 등이 home network에 연결되고, home network가 전화 회사 network or cable 회사 network로 연결된 후 인터넷으로 연결되는 구조를 갖는다.
 
@@ -81,6 +84,7 @@ home network의 core에는 router가 존재, router에는 여러 개의 pc와 wi
 주로 서비스를 제공할 때 router와 wifi access point를 하나의 박스로 묶어서 제공한다. 
 
 #### Enterprise access networks (Ethernet):
+![image](https://user-images.githubusercontent.com/68600592/183642021-fe48ba21-1477-45c8-ab98-f334a28de5e5.png)
 
 학교 혹은 회사에는 home network보다 많은 hosts(end systems)이 존재한다. 이러한 네트워크에는 여러 개의 ethernet switch를 router와 함께 이용해서 access network와 연결될 수 있도록 돕는다.
 
@@ -101,8 +105,6 @@ cellular network: wide-areaw wireless access
 IPS는 개인 또는 기업체에게 인터넷 접속 서비스를 제공하는 회사를 의미한다. 한국에는 대표적으로 KT, LG U+, SK브로드밴드 등이 있다고 한다. 인터넷은 이러한 ISP들의 interconnection으로 구성되어 있다. 
  
 ISP의 규모에 따라 global ISP, regional ISP, instituitional ISP 등으로 구분된다.
-
-
  
 ## IPv4
 IPv4는 internet protocol version 4를 뜻하며, 전 세계적으로 사용된 첫 번째 internet protocol이다. IPv4는 패킷 교환 네트워크(packet switching network)상에서 데이터를 교환하기 위해 사용하는 프로토콜이다.  
@@ -190,8 +192,7 @@ IP address를 할당해주는 DHCP 서버에 전적으로 의존하기 때문에
 TCP(Transmission Controlo Protocol)
   
 
-
-
 ## References
 Introduction to TCP/IP - yonsei university  
 https://namu.wiki/w/%EC%84%9C%EB%B8%8C%EB%84%B7%20%EB%A7%88%EC%8A%A4%ED%81%AC  
+광운대학교 컴퓨터네트워킹-이혁준 교수님 강의  
