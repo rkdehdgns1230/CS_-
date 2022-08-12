@@ -35,17 +35,19 @@ protocol의 표준화는 매우 중요하다. Internet protocol의 표준화 기
 
 ## 네트워크 가장자리(Network Edge)
 
-network edge
-- hosts: clients, servers
-- servers: in data center
+network edge 구성 요소
+- end systems(hosts)
+- access networks
+- links(physical media)
 
 ### Access networks
+network edge를 network core로 연결해주는 역할을 수행하는 network 유형이다.
 
-access network의 특성
+**access network의 특성**
 
 bandwidth(transmission rate, Mbps Gbps): 단위 시간당 실어나를 수 있는 bit 수를 의미한다.
 
-shared / dedicated
+`shared / dedicated`로 network access 제공 방식을 구분
 
 #### Digital subscriber line (DSL):  
 ![image](https://user-images.githubusercontent.com/68600592/183641778-e1d5109f-4736-4564-ba24-e57c6f44c1c8.png)
@@ -88,6 +90,8 @@ home network의 core에는 router가 존재, router에는 여러 개의 pc와 wi
 
 학교 혹은 회사에는 home network보다 많은 hosts(end systems)이 존재한다. 이러한 네트워크에는 여러 개의 ethernet switch를 router와 함께 이용해서 access network와 연결될 수 있도록 돕는다.
 
+이더넷(ethernet)은 네트워크 상에서의 통신 방식 중 하나를 의미하고, 빛의 전달 물질인 에테르(ether)에서 이름이 유래했다고 한다. 유선 인터넷이 된다면, 이더넷 통신 방식을 사용하면 된다고 보면 된다고 함.
+
 ex) 한 건물(or 한 개의 방)에 ethernet swtich를 배치해 건물 내부의 모든 hosts를 연결, 각 건물마다 배치된 ethernet switch가 router와 연결되어 `ISP의 router`와 연결된다.
 
 `기관의 network는 규모가 크다 보니 전화 회사나 케이블 회사를 거쳐 Internet과 연결되지 않고, 학교나 기관을 대표하는 router가 직접 ISP(Internet service provider)의 router와 연결된다.`
@@ -100,12 +104,119 @@ smartphone을 이용해 wife(802.11b/g, 11/54 Mbps)나 3G, LTE, 4G, 5G(cellular 
 
 wifi: 건물 내에서, wireless LANs
 cellular network: wide-areaw wireless access
-## ISP (Internet Server Provider)
+
+#### Host
+network application program을 hosting하고 있으며, data에 대한 packets(message)를 전송하는 주체
+
+Data를 packet이라 불리는 chunk로 잘라서 전송한다. packet의 길이를 L, packet을 access network로 전송하는 transmission rate를 R로 부르자.
+
+`packet transmission delay` = `time needed to transmit L-bit packet into link` = $L(bits)/R(bits/sec)$
+
+위의 수식처럼 transmission delay를 표현할 수 있다.
+
+#### Physical media
+
+packet의 이동 통로(link)
+
+2가지 종류로 나뉜다.
+- guided media: signals propagate in solid media, e.g. copper(Ethernet), fiber(HFC), coax(HFC)..
+- unguided media: signals propagate freely, e.g. radio(WiFi, cellular network)..
+
+**coax, fiber(유선 방식)**
+
+coaxial cable, fiber optic cable 등이 존재.
+
+**radio link**
+
+radio link 특징
+1. 전자기파를 통해 전달.
+2. 물리적인 회선 없음
+3. 반사, 장애물에 의한 가로막힘, 간섭 등이 발생
+4. 양방향
+
+radio link types
+- terrestrial microwave
+- LAN (e.g. WiFi): 와이파이는 300m 내외만 커버 가능 -> 건물 내에서만 사용 가능
+- wide-area(e.g. cellular): 수십km coverage area
+- satelite
+
+## 네트워크 중심(Network Core)
+
+network core는 source host에서 destination host으로 사용자의 message(packet)을 전달하는 것을 목표로 한다.
+
+**Packet 전송 방식 2가지**
+- packet switching
+- circuit switching
+
+### Circuit Switching
+
+주로 전화 network에서 사용하는 전송 방식이다.
+
+반드시 user의 call이 있어야 시작되며, 이러한 방식을 `call-setup` 방식이라고 한다.
+
+`call-setup` 단계에서 source-destination 사이의 경로 결정 및 경로 형성을 위한 resources를 reserve하는 작업을 수행한다.
+
+미리 자원을 분할하고, 요청이 들어오는 경우 남은 분할된 자원을 할당해주는 방식으로 resource를 제공한다.
+
+#### Resource 분할 방식
+
+1. FDM (Frequency Domain Multiplexing)
+2. TDM (Time Domain Multiplexing)
+
+**FDM**
+
+frequency domain으로 resource를 나눈다.
+
+**TDM**
+
+time domain으로 resource를 나눈다.
+
+### Packet Switching
+
+전화 network 상에서의 통신에는 `circuit switching` 방식이 적합할 수 있으나, 새롭게 등장한 인터넷 통신에는 continuous한 통신이 주가 아니기 때문에, `circuit switching` 방식이 적합하지 않게 되어 (자원의 낭비가 심함) `packet switching` 방식이 등장했다.
+
+Packet swtiching은 `no call-setup`, `no resource reserved` 이다.
+
+전달할 데이터가 있는 경우 link 대역폭 전체를 사용해서 전송 `each packet transmitted at full link capacity` host가 data를 packets 단위로 쪼갠 뒤에 packet 단위로 전송한다.
+
+다른 host에 의해 전송 불가하면, 전송 끝날 때까지 대기한다.
+
+각 packet은 목적지 주소를 가지고 있으며, router에서 packet의 목적지 주소를 기반으로 다음 경로(router or switch)를 선택한다.
+
+이 때, 목적지를 확인하기 위해서는 전체 packet을 수신한 뒤에 가능하기 때문에, 저장한 후에 전송을 한다고 해서 `store and forward` 방식이라고 부른다.
+
+#### queueing delay, loss
+
+packet 전송 대기열인 queue에서 packet이 대기하는 시간을 queueing delay라고 한다. 이 queue의 길이는 무한할 수 없기 때문에, 길어진 queueing delay로 인해서 packet loss가 발생하게 된다.
+
+#### Congestion 발생 가능
+
+Circuit Switching과는 다르게 resource를 예약해서 사용하지 않기 때문에, congestion이 발생할 수 있다. circuit switching에 비해 resource sharing 측면에서 탁월하고, call setup 과정이 없어 빠르지만, 문제는 congestion.
+
+특히 audio, video data 같은 경우 delay에 민감하기 때문에, 어느 정도의 bandwidth를 보장해야 한다. 이건 여전히 문제라고 한다.
+
+### Internet structure
+
+인터넷의 network의 network 형태의 구조를 갖는다. 따라서 매우 복잡
+
+수 백만개의 access network가 인터넷 상에 존재하고, 이를 fully connected 하게 연결하면 굉장히 비효율적이기 때문에, 이를 위해서 `ISP`라는 것이 존재한다.
+
+#### ISP (Internet Server Provider)
 
 IPS는 개인 또는 기업체에게 인터넷 접속 서비스를 제공하는 회사를 의미한다. 한국에는 대표적으로 KT, LG U+, SK브로드밴드 등이 있다고 한다. 인터넷은 이러한 ISP들의 interconnection으로 구성되어 있다. 
- 
-ISP의 규모에 따라 global ISP, regional ISP, instituitional ISP 등으로 구분된다.
- 
+
+ISP의 규모에 따라 `global ISP, regional ISP, instituitional ISP` 등으로 구분된다.
+
+#### IXP (Internet Exchange Provider)
+
+ISP끼리 연결해주는 사업자. ISP는 peering link를 통해 연결된다.
+
+#### Content Provider networks
+
+Google, Microsoft 같은 회사들이 자체적으로 services, contents를 제공하는 네트워크를 운영하는데, 이를 content provider network라고 부른다. 전세계에 위치한 data center에 연결되어 content를 연결하지만, 한계가 있기 때문에 1 tier ISP에 연결되어있음. (하지만 1 tier ISP에 의존적이지는 않다.)
+
+----------------------
+
 ## IPv4
 IPv4는 internet protocol version 4를 뜻하며, 전 세계적으로 사용된 첫 번째 internet protocol이다. IPv4는 패킷 교환 네트워크(packet switching network)상에서 데이터를 교환하기 위해 사용하는 프로토콜이다.  
   
