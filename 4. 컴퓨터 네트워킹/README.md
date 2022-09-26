@@ -215,6 +215,125 @@ ISP끼리 연결해주는 사업자. ISP는 peering link를 통해 연결된다.
 
 Google, Microsoft 같은 회사들이 자체적으로 services, contents를 제공하는 네트워크를 운영하는데, 이를 content provider network라고 부른다. 전세계에 위치한 data center에 연결되어 content를 연결하지만, 한계가 있기 때문에 1 tier ISP에 연결되어있음. (하지만 1 tier ISP에 의존적이지는 않다.)
 
+## 3-1 Application layer 개념 정리
+
+network application program은 다음의 두 가지 구조 중 하나를 따른다. network application protocol 또한 마찬가지이다.
+1. client-server
+2. peer-to-peer (P2P)
+
+주의 - 커뮤니케이션의 주체는 호스트 자체가 아니라 호스트에서 실행되고 있는 프로그램이다.
+
+### client - server architecture
+
+커뮤니케이션의 두 주체 중 하나는 서버, 나머지 하나를 클라이언트라고 부른다.
+
+서버와 클라이언트의 특징
+
+server
+- 항상 켜져있는 host
+- 영구적인 IP 주소
+- 다수의 client에 응답 가능한 data center의 형태
+
+client
+- 서버와 통신
+- 클라이언트 끼리는 통신하지 않는다.
+- 통신할 때만 켜져있는 상태
+- 동적 IP 주소를 할당 받는다.
+
+client-server architecture에서는 `서버 호스트 상의 프로세스`와 `클라이언트 호스트 상의 프로세스`가 서로 통신을 하게 된다.
+
+### P2P architecture
+
+P2P 구조는 서버-클라이언트 구조와는 다르게 정해진 always-on 서버가 없고 서로 통신을 하는 구조이다.
+
+이 때 통신의 주체를 peer라고 부르며, peers 간에 request와 response를 주고 받게된다.
+
+따라서 새로운 peers가 생기면 service 요구량이 증가함과 동시에 service 수용량이 증가하게 되기 때문에 self scalability를 갖는다고 말할 수 있다.
+
+하지만, 모든 peers가 항상 켜져있지 않고, ip 주소가 계속해서 변하기 때문에, 관리가 매우 복잡하다.
+
+### Process communicating
+
+앞서 network application program의 두 가지 구조를 살펴보았는데, 결국 통신의 주체는 host가 아니라 process가 된다.
+
+process: host 상에서 실행되고 있는 program을 의미
+
+같은 host내의 두 개의 processes가 통신하는 경우 inter-process communication
+
+서로 다른 호스트끼리 통신하는 경우 messages를 교환하면서 통신한다.
+
+process 통신에서 두 가지 종류의 process가 있다.
+- client process: client host에서 실행중인 process. 통신을 시작하는 process
+- server process: server host에서 실행중인 process. 접촉을 기다리는 process
+
+### Sockets
+
+application layer는 개발자에 의해 control 되는 영역이고, 그 아래 계층은 OS에 의해 control 되는 processes의 영역이다.
+
+따라서 transport layer를 포함한 그 아래의 layer에서 동작하는 process에 우리는 접근할 수 없기 때문에, application layer에서 만들어진 message의 전송을 transport layer에게 부탁한다.
+
+여기에 transport layer와 application layer 사이의 door의 역할을 하는 것을 `socket`이라고 부른다.
+
+summary: socket은 application layer에서 전송하고 수신하는 message들이 드나드는 `통로`이다.
+
+### Process간 통신에서 주소를 식별하는 방법
+
+단순 32bit ip address 만으로는 process간 통신시 통신 위치를 구분할 수 없다.
+
+여기에 더해 port number 정보가 추가로 필요하다.
+
+따라서 `identifier = IP address + port #`인 것이다.
+
+well-known port #
+1. HTTP server: 80
+2. Mail server: 25
+
+특정 process에 대해서 전용으로 사용하는 port number를 well-known port number라고 부른다.
+
+예를 들어 HTTP protocol에 따라 통신을 한다면 message에는
+```
+ip address: 128.119.245.11 (32bits, 8bits x 4)
+port number: 80
+```
+위의 정보가 request를 요청할 process로의 identifier로서 작성되어야 한다.
+
+### 어떤 transport service가 있을까?
+
+data integrity
+- 일부 apps은 reliable data가 요구되기도 하고
+- 또 일부 apps은 약간의 loss를 허용하기도
+
+timing
+- 일부 apps은 low delay service를 요구할수도
+- 그렇지 않을 수도
+
+throughput
+- 일부 apps은 minimum throughput을 최소치 이상 요구한다.
+- 또한 나머지 일부 apps은 throughput과 상관없이 사용만 가능하면 된다. (elastic apps)
+
+이에 따라서 서비스 요구사항에 맞는 transport service를 선택해야 한다.
+
+### TCP vs UDP
+
+실제로 internet transport service protocol에는 TCP, UDP 두 가지 종류가 존재한다.
+
+각각의 특징은 따로 정리하겠지만, 일단 다음과 같이 정리할 수 있다.
+
+TCP
+- reliable transport
+- flow control
+- connection-oriented
+- congestion control
+- does not provide (timing, min throughput, guarantee, security)
+
+UDP
+- unreliable data transfer
+- does not provide (reliability, flow control, congestion control, throughput guarantee, security, connection setup)
+
+
+
+
+
 ----------------------
 
 ## IPv4
