@@ -215,7 +215,7 @@ ISP끼리 연결해주는 사업자. ISP는 peering link를 통해 연결된다.
 
 Google, Microsoft 같은 회사들이 자체적으로 services, contents를 제공하는 네트워크를 운영하는데, 이를 content provider network라고 부른다. 전세계에 위치한 data center에 연결되어 content를 연결하지만, 한계가 있기 때문에 1 tier ISP에 연결되어있음. (하지만 1 tier ISP에 의존적이지는 않다.)
 
-## 3-1 Application layer 개념 정리
+## Chapter 2. Application layer
 
 network application program은 다음의 두 가지 구조 중 하나를 따른다. network application protocol 또한 마찬가지이다.
 1. client-server
@@ -330,11 +330,61 @@ UDP
 - unreliable data transfer
 - does not provide (reliability, flow control, congestion control, throughput guarantee, security, connection setup)
 
+### Application layer protocol 정의
 
+- 교환하는 메시지의 종류를 결정한다.
+    - request, response message
+- 메시지의 문법을 정의한다.
+    - 메시지 내부의 필드와 필드 간의 구별법을 정의?
+- 메시지가 어떻게 해석이 되어야 하는지
+    - 필드내에 있는 정보의 의미
+- 규칙
+    - 언제, 어떻게 프로세스가 메시지를 전송하고 메시지에 응답하는지를 결정한다.
 
+Application-layer protocol의 종류로는 크게 두 가지가 있다.
+- 개방 프로토콜
+    - RFC(Request For Comment, 인터넷 표준)에 정의되어 있다.
+    - ex) HTTP, SMTP..
+- 비개방 프로토콜
+    - 어떤식으로 동작하는지 짐작을 할뿐 방식을 알 수 없다.
+    - ex) Skype..
 
+### WEB과 HTTP(Hypertext Transfer Protocol)
 
-----------------------
+HTTP는 다양한 application을 위해 만들어진 protocol이지만, 그 중 가장 대표적인 application은 WEB이다.
+
+web page는 여러 개의 objects로 구성되며, 여러가지 객체들에 대한 reference를 포함하는 HTML file 기반으로 구성되어 있다.
+
+이러한 reference는 url의 형태로 object를 가리키고 있다.
+
+```
+ex) URL
+www.someschool.edu/someDept/pic.png
+host name + path name 으로 구성된다.
+```
+
+**Objects의 종류**
+- HTML file
+- JPEG images
+- Java applet
+- audio file
+- ...
+
+**HTTP는 client/server model로 동작**
+
+`Client`: browser에 요청한 url에 맞는 web page를 위해 serverr로 request를 보내고 response를 받아서 web page를 사용자에게 보여준다.
+
+`Server`: request에 맞는 objects를 전송한다.
+
+firefox browser, safari browser 서로 다른 process이지만, HTTP protocol에 따라 server와 같은 종류의 통신이 가능하다.
+
+### HTTP overview
+1. WEB application을 위해 디자인된 protocol
+2. client / server 구조를 따른다.
+3. TCP를 사용한다.
+4. stateless 하다. 
+
+--------------------------
 
 ## IPv4
 IPv4는 internet protocol version 4를 뜻하며, 전 세계적으로 사용된 첫 번째 internet protocol이다. IPv4는 패킷 교환 네트워크(packet switching network)상에서 데이터를 교환하기 위해 사용하는 프로토콜이다.  
@@ -416,10 +466,6 @@ IP address를 할당해주는 DHCP 서버에 전적으로 의존하기 때문에
 2. **DHCP offer    (server side)**: DHCP 서버에서 client의 discover 메시지에 따른 응답이다. IP address를 제공받고 싶은지 여부를 확인하기 위해 client로 전송한다.
 3. **DHCP request  (client side)**: 단말(client)에서 IP address를 DHCP 서버에 요청하고 싶은 경우 해당 메시지를 전송한다.
 4. **DHCP ack      (server side)**: 요청한 IP address 및 필요한 다양한 네트워크 정보를 Ack 메시지와 함께 단말로 전송한다.
-  
-
-## TCP/IP and OSI 7 layer
-TCP(Transmission Controlo Protocol)
   
 
 ## References
