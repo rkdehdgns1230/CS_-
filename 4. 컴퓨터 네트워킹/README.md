@@ -384,6 +384,87 @@ firefox browser, safari browser 서로 다른 process이지만, HTTP protocol에
 3. TCP를 사용한다.
 4. stateless 하다. 
 
+### Non-persistent, persistent HTTP
+
+- 비지속 연결(non-persistent) HTTP
+    - user에 요청에 따라 여러 개의 객체(object)를 요구하는 경우 객체를 가져올 때 마다 TCP connection을 맺어야 한다.
+
+- 지속 연결(persistent) HTTP
+    - 한 번의 connection으로 여러 개의 객체를 가져온다.
+
+최초의 HTTP는 non-persistent였으나 non-persistent의 단점을 개선하기 위해 persistent HTTP로 변경되었다.
+
+예를 들어 TCP connection 이후 url에 따른 request의 응답으로 base HTML을 response로 전송 받는다.
+
+이후 base HTML이 참고하고 있는 여러 개의 objects를 client가 parsing하여 확인한 후 이 여러 개의 objects를 가져오는데
+
+한 번의 connection으로 모든 objects를 가져온다면, persistent, 그렇지 않은 경우 non-persistent 방식에 해당
+
+### non-persistent, persistent HTTP에서의 응답 시간
+
+우선 아래의 그림과 같이 HTTP protocol에 따라 client와 server가 통신을 한다고 하자.
+
+![image](https://user-images.githubusercontent.com/87526189/184528977-358c470e-0d04-420e-9592-1d22195d02d9.png)
+
+RTT(Rount Trip Time): packet이 client -> server, server -> client로 이동하는데 걸리는 시간을 의미
+
+이럴 때 non-persistent HTTP 방식으로 통신하면 우선 위 과정에서만 base HTML 파일을 가져오는데 2RTT의 시간이 소모된다. `TCP connection을 위한 1RTT + base HTML을 가져오기 위한 1RTT`
+
+만약 base HTML 파일을 parsing 했을 때 추가적인 참고 objects가 필요하다면, `2RTT * # of objs` 만큼의 시간이 추가적으로 필요하게 된다.
+
+반면에, persistent HTTP 방식으로 통신하는 경우 TCP 통신을 한 번만 하면 이후에 object를 가져오기 위해 TCP connection을 형성할 필요가 없기 때문에 `2RTT + # of objs * 1RTT` 만큼의 시간이 소모된다.
+
+`위 과정은 일단 file transmission은 고려하지 않는 상황을 가정한 설명이다`
+
+### HTTP request message
+
+앞서 정리한 바와 같이 HTTP protocol에 따라 통신을 하는 경우 request, response 두 가지의 message가 존재한다.
+
+![image](https://user-images.githubusercontent.com/87526189/184542496-22bad173-e86b-41bf-bec3-53044c45ec7d.png)
+
+request message 구성
+1. 요청 라인(request line)
+    - 방식: 서버에게 요청할 작업의 종류를 명시
+    - URL: 요청하는 파일의 URL
+    - 버전: 클라이언트가 사용하는 HTTP의 버전을 명시
+2. 헤더 라인(header line)
+    - header field의 이름과 값의 쌍
+    - hostname: name_of_the_host..
+3. 공백 라인
+4. entity body
+
+method type
+1. HTTP/1.0
+    1. GET: 단순히 url에 해당하는 page를 요청할 때 사용
+    2. POST: form input을 제공했을 때 이것을 반영해서 웹 페이지를 요청할 때
+    3. HEAD: 주로 개발 과정에서 테스트시 사용되며, object 없는 response message만 받아오고 싶을 때 사용한다.
+2. HTTP/1.1 이후
+    1. GET, POST, HEAD
+    2. PUT: server에 파일을 upload하고 싶을 때 사용
+    3. DELETE: server에서 파일을 삭제하고 싶을 때 사용
+
+
+![image](https://user-images.githubusercontent.com/87526189/184549011-cb2d7271-8135-46e8-99fd-61cb33eee192.png)
+
+response message 구성
+1. 상태 라인(status line)
+    - 버전: 서버에서 사용하는 HTTP의 버전 정보
+    - 상태 코드: response의 상태를 전달
+    - 상태 구문: 상태 코드와 같은 기능이나 사람이 이해하기 쉽게
+2. 헤더 라인(header line)
+    - 헤더 필드 이름과 값을 쌍으로 표기된다.
+    - date, server, last_modified, connection 등의 필드 이름과 그에 따른 값을 표기하는 구역이다.
+3. 공백 라인
+4. entity body
+    - request에 따른 response message에 실어 보낼 객체들을 body에 담아서 전송한다. ex) html file, images, video..
+
+HTTP status code
+- 200: response message의 body에 요청된 객체가 실려있음을 의미
+- 301: 요청된 객체의 위치가 다른 곳으로 옮겨져 저장되어 있는 경우
+- 400: request message가 잘못되어 해석이 불가능한 경우
+- 404: 요청된 url에 대한 웹 페이지가 서버에 없는 경우
+- 505: client의 HTTP 버전을 서버가 지원하지 못하는 경우
+
 --------------------------
 
 ## IPv4
