@@ -1,5 +1,5 @@
-# 컴퓨터 네트워킹
-  
+# Chapter 1. Roadmap
+
 ## Internet and internet
 Internet: 전세계의 host와 상호 통신이 가능한 대규모 네트워크 전체를 의미 (network of networks)  
 internet: Internet보다 작은 복수의 네트워크를 의미 (2개 이상의 host가 연결된 경우 internet이라고 한다.)
@@ -215,7 +215,7 @@ ISP끼리 연결해주는 사업자. ISP는 peering link를 통해 연결된다.
 
 Google, Microsoft 같은 회사들이 자체적으로 services, contents를 제공하는 네트워크를 운영하는데, 이를 content provider network라고 부른다. 전세계에 위치한 data center에 연결되어 content를 연결하지만, 한계가 있기 때문에 1 tier ISP에 연결되어있음. (하지만 1 tier ISP에 의존적이지는 않다.)
 
-## Chapter 2. Application layer
+# Chapter 2. Application layer
 
 network application program은 다음의 두 가지 구조 중 하나를 따른다. network application protocol 또한 마찬가지이다.
 1. client-server
@@ -223,7 +223,7 @@ network application program은 다음의 두 가지 구조 중 하나를 따른�
 
 주의 - 커뮤니케이션의 주체는 호스트 자체가 아니라 호스트에서 실행되고 있는 프로그램이다.
 
-### client - server architecture
+## client - server architecture
 
 커뮤니케이션의 두 주체 중 하나는 서버, 나머지 하나를 클라이언트라고 부른다.
 
@@ -242,7 +242,7 @@ client
 
 client-server architecture에서는 `서버 호스트 상의 프로세스`와 `클라이언트 호스트 상의 프로세스`가 서로 통신을 하게 된다.
 
-### P2P architecture
+## P2P architecture
 
 P2P 구조는 서버-클라이언트 구조와는 다르게 정해진 always-on 서버가 없고 서로 통신을 하는 구조이다.
 
@@ -313,7 +313,7 @@ throughput
 
 이에 따라서 서비스 요구사항에 맞는 transport service를 선택해야 한다.
 
-### TCP vs UDP
+## TCP vs UDP
 
 실제로 internet transport service protocol에는 TCP, UDP 두 가지 종류가 존재한다.
 
@@ -330,7 +330,7 @@ UDP
 - unreliable data transfer
 - does not provide (reliability, flow control, congestion control, throughput guarantee, security, connection setup)
 
-### Application layer protocol 정의
+## Application layer protocol 정의
 
 - 교환하는 메시지의 종류를 결정한다.
     - request, response message
@@ -349,7 +349,7 @@ Application-layer protocol의 종류로는 크게 두 가지가 있다.
     - 어떤식으로 동작하는지 짐작을 할뿐 방식을 알 수 없다.
     - ex) Skype..
 
-### WEB과 HTTP(Hypertext Transfer Protocol)
+## WEB과 HTTP(Hypertext Transfer Protocol)
 
 HTTP는 다양한 application을 위해 만들어진 protocol이지만, 그 중 가장 대표적인 application은 WEB이다.
 
@@ -378,7 +378,7 @@ host name + path name 으로 구성된다.
 
 firefox browser, safari browser 서로 다른 process이지만, HTTP protocol에 따라 server와 같은 종류의 통신이 가능하다.
 
-### HTTP overview
+## HTTP overview
 1. WEB application을 위해 디자인된 protocol
 2. client / server 구조를 따른다.
 3. TCP를 사용한다.
@@ -465,7 +465,153 @@ HTTP status code
 - 404: 요청된 url에 대한 웹 페이지가 서버에 없는 경우
 - 505: client의 HTTP 버전을 서버가 지원하지 못하는 경우
 
---------------------------
+## User와 Server간에 상태 정보를 기록하기 위해 사용하는 cookies
+
+HTTP가 stateless protocol이므로, 이전 통신에 대한 history를 유지하기 위해서 cookie라는 것을 사용한다.
+
+**cookie 기술의 4가지 요소**
+```
+1. HTTP response message에 cookie headerline을 추가해야 한다.
+2. 다음 HTTP request message에 cookie headerline과 그에 따른 정보가 전송된다.
+3. 사용자의 브라우저에 의해 관리되는 cookie 파일을 client에서 유지하고
+4. back-end database를 website(server)에서 유지한다.
+```
+
+Server에서는 해당 web site를 처음 방문하는 사용자에 대해 unique id를 생성하고, 이를 back-end db에 저장한다.
+
+Client는 website로부터 부여 받은 id를 cookie file을 이용해서 저장한다.
+
+이렇게 생성된 unique id를 이용해서 client, server 간의 transaction history를 db에 기록할 수 있게 된다.
+
+![image](https://user-images.githubusercontent.com/87526189/184567345-ba866635-360c-4e7d-aa41-6c104fd628f1.png)
+
+처음 사용자가 웹사이트에 방문하는 경우 서버는 해당 이용자에게 set-cookie headline을 추가하여 cookie를 부여하는 response message를 client로 전송하고, 이에 client는 새로운 cookie에 대한 unique id를 부여받게 됩니다.
+
+이렇게 한 번 cookie를 부여받게 되면, 이후에는 cookie headerline을 이용해서 통신을 주고받게 되어 server side에서 db에 유지하고 있는 transaction entry에 통신 정보가 저장됩니다.
+
+### Cookie의 기능
+
+1. 인증(authorization)
+    - 한 번 로그인을 하게 되면, 이후에는 인증 없이 로그인이 가능하다.
+2. 쇼핑몰 페이지의 장바구니 기능
+3. 추천 기능 사용 가능
+4. 사용자 세션(session) 유지
+    - 세션(session): 통신을 하기 위해 서로 연결된 순간부터 연결을 마무리할 때까지의 기간을 의미한다. 즉, 웹사이트에서의 세션은 HTTP 통신 시작 시점부터 끝날 때까지를 의미하는 것 같다.
+    - 즉, 이러한 세션의 유지를 한 번의 로그인 이후에는 쿠키로 가능하게 한다. (authorization을 간소화할 수 있다는 개념같다.)
+
+
+## Web caches (proxy server)
+
+웹 캐시의 목적은 굳이 매 번 통신할 때마다 멀리 있는 서버까지 접근하는 수고로움을 덜기 위해서 로컬에 있는 캐시에 저장해 두었다가 중복된 요청을 하는 경우 더 빠르게 원하는 정보를 전달하기 위해서 사용한다.
+
+`Web cache가 있는 경우의 HTTP 통신 방식`
+1. user가 browser를 이용해 server와 통신하려 할 때, 모든 HTTP 통신은 web cache를 거쳐서 간다.
+2. 우선 browser가 user의 requests를 cache로 전송한다.
+3. cache에 있는 object를 요청하는 경우 해당 objects를 돌려준다. (이 때, server 방문 안하게됨)
+
+More about Web caching
+
+- web cache는 server이자 client로서의 역할을 수행한다.
+- 통상적으로 cache는 ISP에 의해 설치된다.
+- 왜 Weh caching을 사용할까?
+    - client의 request에 대한 응답 시간을 줄이기 위해
+    - 기관의 access link에 대한 traffic을 줄이기 위해
+    - 자금이 부족한 CP(content provider)가 효율적으로 content를 제공할 수 있도록 돕는다.
+
+### Web cache의 조건부(conditional) GET
+
+구버전의 objects를 반환하지 않기 위해 최신(up-to-date) 정보가 caching 되어있는지 확인해야한다.
+
+그렇게 하기 위해 Conditional GET 이라는 method를 사용한다!
+
+1. web cache에서 server로 날짜 정보를 명시한 HTTP request를 보낸다. (HTTP request message의 L.M(Last Modified)칸에 작성)
+```
+If-modified-since:
+    <date>
+```
+2. server는 cached copy가 up-to-date인 경우 object가 없는 response를 반환한다.
+```
+HTTP/1.0 304 NOT Modified
+```
+3. cached copy의 최신 버전이 존재한다면, 새로운 버전의 object를 실은 response를 반환한다.
+```
+HTTP/2.0 200 OK
+    <data>
+```
+
+이렇게 Conditional GET method를 사용하면, out-of-date object를 web cache에서 반환할 일이 없다는 장점이 있지만, 반대로 매 번 server와 통신해야 한다는 단점이 생기게 된다.
+
+그래서 체크하는 간격을 두고 update를 진행하는 구조로 동작하는 것 같다. check 주기에 따라 average delay가 달라질 것이다.
+
+## E-mail (electronic mail)
+
+Electronic mail의 세 가지 주요 구성 요소
+- user agents
+- mail servers
+- mail protocols
+    - SMTP(simple mail transfer protocol)
+    - POP3, IMAP
+
+### User Agent
+- mail reader라고 불린다.
+- mail messsages를 작성, 수정, 조회하는 기능을 제공
+- e.g. Outlook, Thunderbird, iPhone mail client, Gmail 등..
+
+### Mail Servers
+- 전송, 수신하는 모든 messages를 mail server가 받아서 저장한다.
+- mailbox: user에게 전송되는 messages를 저장
+- message queue: user가 발송하는 mail messages를 저장
+
+![image](https://user-images.githubusercontent.com/68600592/193401193-c414eb96-f9e2-447d-a6c1-3b4984ec9d5e.png)
+
+message queue는 user 구분이 없이 사용되고, meilbox는 user 별로 존재한다. 왜냐하면 mail server 안에 user 별로 전송된 mail messages를 관리해야 되기 때문이다.
+
+**Mail Protocols**
+
+![image](https://user-images.githubusercontent.com/68600592/193401309-66df2224-bc4a-42d2-9023-485416c7c557.png)
+
+user agent(sender's, receiver's), mail server(sender's, receiver's)이 존재한다.
+
+1. sender 측 user agent에서 email을 작성
+2. SMTP protocol의 정의에 따라 email을 sender's mail server로 전송
+3. sender's mail server에서 SMTP protocol의 정의에 따라 receiver's mail server로 email 전송
+4. receiver's mail server 측의 email을 receiver user agent 측에서 읽어가는데 이 때는 email access protocol(POP, IMAP, HTTP. .)을 사용한다.
+
+
+**SMTP protocol**
+
+user agent에서 email 발송을 위해 mail server로 email을 보내는 경우
+- client: user agent
+- server: mail server
+
+이는 먼저 통신을 시작하는 쪽을 client, 그렇지 않은 쪽을 server로 정의하기 때문이다.
+
+mail serve간에 email messages를 전송하는 경우
+- client: sending mail server
+- server: receiving mail server
+
+SMTP protocol의 특징
+- 신뢰할 수 있는 email messages의 전송을 위해 TCP를 사용한다. (port번호 25번에서 대기, well-known port number)
+- 3가지 전송의 phases
+    1. handshaking (greeting)
+    2. transfer of messages
+    3. closure
+- command(client)/response(server) interaction
+    - command: ASCII text
+    - response: status code(phrase)
+- messages는 ASCII code만을 포함한다. (text version) 물론 지금은 audio, video 가능
+
+### SMTP vs HTTP
+
+- HTTP는 pull protocol, SMTP는 push protocol이다.
+- 둘 다 ASCII command/response 상호작용, status code 이용
+- HTTP는 각각의 objects가 자신의 response message에 담긴다.
+- SMTP는 여러 개의 objects가 multipart message에 담겨 전송된다.
+
+----------------------------------------------------------------------
+
+`이 아래는 강의 정리가 아닌 따로 조사한 개념들 정리 부분입니다.`
+
 
 ## IPv4
 IPv4는 internet protocol version 4를 뜻하며, 전 세계적으로 사용된 첫 번째 internet protocol이다. IPv4는 패킷 교환 네트워크(packet switching network)상에서 데이터를 교환하기 위해 사용하는 프로토콜이다.  
