@@ -608,6 +608,185 @@ SMTP protocol의 특징
 - HTTP는 각각의 objects가 자신의 response message에 담긴다.
 - SMTP는 여러 개의 objects가 multipart message에 담겨 전송된다.
 
+## 메일 접속 프로토콜(Mail access protocols)
+
+mail system은 user agent와 mail server로 구성된다. 
+
+전송자의 user agent가 SMTP protocol을 이용해 mail server를 거쳐 수신자의 mail server까지 email messages가 도달하게 되고
+
+수신자측 user agent에서는 여러 가지의 mail access protocols를 이용하여 수신자측 mail server의 본인 mail box에 저장되어 있는 email messages를 읽어온다.
+
+이 때, 수신자측 user agent는 mail messages를 pull해야 하는데, 이로 인해서 SMTP protocol을 사용할 수 없어, 별도의 protocol이 사용되어야 하고 이를 mail access protocol이라고 한다.
+
+Mail access protocols의 종류
+- POP: Post Office Protocol, 가장 단순한 protocol
+- IMAP: Internet Mail Access Protocol, pop의 단점을 보완한 복잡한 protocol
+- HTTP: 수신측 메일 서버가 웹 메일인 경우 HTTP protocol을 이용해 웹 메일을 가져오기도 한다.
+
+### POP3 protocol
+
+POP3 protocol은 2개의 phase로 구성된다.
+
+1. authorization phase
+    - client commands
+        - user: username을 선언
+        - pass: password
+    - server responses
+        - +OK (성공시)
+        - -ERR (오류 발생)
+2. transaction phase, client
+    - list: message numbers를 나열
+    - retr: 번호로 message를 회수
+    - dele: delete
+    - quit
+
+![image](https://user-images.githubusercontent.com/87526189/185606257-9ebf3841-a2e4-4519-9b41-5e047e0b378c.png)
+
+1. 바로 POP3 server process에서 OK response를 받는다.
+2. 다음 command는 user command를 이용해 username을 지정
+3. server측에서 username이 가능하면 OK response를 전송
+4. 다음 user command는 pass로 password를 지정한다.
+5. server측에서 password 가능하면 OK response를 전송
+6. 이후에는 transaction phase 시작된다.
+
+7. list command를 client에서 보내면, msg numbers를 돌려준다.
+8. 현재 mailbox에 들어있는 msg 정보를 수신 가능, 마지막은 .으로 표기한다.
+9. retr 1 => 첫 번째 msg를 가져오는 command
+10. server는 이에 대한 response로 msg content를 client로 전송 (msg의 끝을 .으로 표시한다.)
+11. dele 1 => 첫 번째 msg를 삭제하는 command
+12. delete는 response 없고, quit command 이용시 server와의 연결을 끊는다.
+
+**summary**
+
+POP3 protocol은 list로 msg lists를 받아온 후에 retrieve 후 delete하는 과정을 반복하다 마지막까지 읽고난 후에 quit command를 실행하여 연결을 끊는 방식으로 동작
+
+
+
+**POP3의 두 가지 mode**
+
+1. 위에서 봤던 것과 같이 download and delete mode
+2. download-and-keep mode, retrieve 하지만, delete는 하지 않는 방식으로 동작
+
+지금은 거의 없지만, 과거에는 download-and-delete mode가 흔한 방식이었다고 한다. (한 번 조회시 다시 메일 확인이 불가능한 불편한 점이 존재한다.)
+
+반대로, download-and-keep mode는 다른 브라우저를 통해 읽어도 새로운 환경에서 접속시 읽었던 메시지를 새로운 메시지로 취급하는 불편함이 있다.
+
+## IMAP
+
+POP3의 두 가지 mode의 불편성을 해소하기 위해 만들어진 protocol이 IMAP protocol이다.
+
+POP3는 user agent 즉, local 환경에서 명령어를 통해 조작하여 mail을 받아오기 때문에, mailbox에 있는 메일에는 아무런 변화가 었다.
+
+IMAP protocol은 server에 모든 messages를 보관하며, mailbox에 user가 하는 일을 모두 반영한다. 즉, 서버의 mailbox를 직접 user가 조작하는 개념이다.
+
+**summary**
+- 모든 msgs가 mail server에 유지된다.
+- server의 mailbox에 folder를 생성하여 구성이 가능하다.
+- 한 세션에서 작업한 애용이 다른 세션에서도 그대로 반영된다.
+
+## DNS(Domain Name System)
+
+`www.google.com` 이런 것을 host name 또는 domain name이라고 부른다. domain name이라고 부르는 이유는 .com domain의 google domain이라는 뜻을 가지고 있기 때문에, domain을 명시한다고 하여 domain name이라고 부르기도 한다고 함.
+
+실제 client에서 server에 접속하기 위해 필요한 주소는 host name(domain name)이 아닌 32bit IP address이기 때문에, 모든 network application은 hostname을 ip address로 mapping 하는 작업이 필요한데, 이 service를 DNS(Domain Name System)가 담당한다.
+
+이러한 기능은 모든 network에 걸쳐 요구되기 때문에, network 자체에 구현되는 것이 맞지만, network는 가능한 가장 간단한 형태를 유지한다라는 internet의 philosophy로 인해 application으로 따로 구현되어 있다.
+
+### DNS services
+
+- hostname -> ip address translation
+- hostname aliasing (외부 세상에 알려진 별칭(alias)을 실제 이름(canonical)으로 변환)
+- 특정 domain의 mail server를 알려준다.
+- 해당 web server에 대한 request가 몰릴 때, web server의 replica 존재 그러나, 외부에는 replica 드러나지 않고, 하나의 별칭(alias)으로 접속하는데, 여러 개의 replica로 request를 분배하는 역할을 수행한다. (load distribution)
+
+### 왜 centralize DNS가 아닌 분산 DNS인가?
+
+- network application에 있어서 매우 critical한 service이므로 실패시 대체 가능해야
+- traffic이 과다하게 집중된다.
+- 지역적으로 먼 경우 network resource의 낭비 발생
+- 유지/보수가 어렵다.
+
+### DNS, 분산 계층 DB
+
+DNS 서버는 서버 사이에 분산된 세가지 유형의 DNS 서버가 존재한다.
+
+![image](https://velog.velcdn.com/images%2Fckstn0777%2Fpost%2Fd8c3ac1e-36ee-4ecb-93dc-1d37669c4928%2Fimage.png)
+
+총 세 단계의 hierarchy를 가지며, 최상단에는 root DNS server가 위치한다.
+Root DBS server아래의 server들은 TLD(Top-Level-Domain) servers라고 부른다.
+
+DNS의 client가 hostname의 ip address를 translation하기 위해서는 다음과 같은 과정을 거친다.
+1. 최상위 레벨의 root DNS 서버 중 하나로 접속
+2. Root DNS 서버가 hostname에 해당하는 TLD 서버의 IP address중 하나를 보낸다.
+3. client가 TLD서버 중 하나로 접속
+4. TLD서버가 hostname(domain name)에 맞는 서버의 IP address를 보낸다.
+
+### Local DNS server
+
+위 세 개의 계층 외에 Local DNS server가 존재하며, "default name server" or "proxy name server" 라고도 불린다.
+
+각각의 ISP(지역 ISP, 회사, 대학 등..)마다 하나씩 가지고 있다. `web cache가 web page를 cachign 하여 web server 역할을 수행하듯`이 Local DNS server를 ISP가 설치하여, `마치 DNS 서버 같은 역할`을 수행한다.
+
+
+### TLD, authoritative servers
+
+TLD server
+- com, org, net, edu, aero, jobs, museums.. 등의 모든 top-level 국가 domain을 담당한다.
+- .com TLD server는 Network Solutions라는 기관에서 관리를 담당
+- .kr: 한국인터넷정보센터 기관에서 관리를 담당
+- `어떤 domain에 대해 담당하고 있는 authoritative server가 누군지`를 알고 있다.
+
+authoritative DNS server
+- `조직내의 모든 host들에 대해 authoritative hostname을 IP address로 mapping할 수 있는 정보를 보유한 DNS server.`
+- organization 또는 service provider에 의해 유지된다.
+
+### Root name server
+
+- 계층 구조의 가장 상위 레벨을 담당하는 name server이다.
+- domain 별 TLD 서버를 알고 있다.
+- 각 site에는 local name server가 있는데, local name server가 모르는 domain에 대한 요청이 root name server로 온다.
+
+## DNS name resolution 예제 (query가 resolve되는 방식)
+
+1. 반복 질의 (iterated query)
+
+![image](https://user-images.githubusercontent.com/87526189/185649023-65df9f80-25f9-431e-b237-0cdc24102efb.png)
+
+질문을 받은 서버가 mapping 정보를 제공하지 않고, 누구를 contact 해야 하는지를 알려준다.
+
+2. 재귀 질의 (recursive query)
+
+![image](https://user-images.githubusercontent.com/87526189/185649607-fb578846-d630-4c79-9b6f-4a6905274be8.png)
+
+질문을 받은 서버가 자기가 어떻게든 정보를 알아내서 request를 보낸 client에게 제공한다.
+
+재귀 질의 방식의 경우 root, TLD DNS server에 대한 load가 커지는데, 상위 레벨의 서버일수록 load가 증가한다.
+
+## DNS: caching, updating records
+
+local DNS server가 caching을 하고 있으면, caching 하고 있는 정보는 빠르게 반환해줄 수 있을 것이다. 
+
+일반적으로 local name server는 TLD server를 caching 하고 있으며, 이를 통해서 root name server로 향하는 trip을 save할 수 있다. (top level DNS server로의 부담을 줄이기 위해서)
+
+이 때, cached entries가 out-of-date 정보일 수 있는데, 이를 위해 TTL(Time-to-live) 정보를 항상 갖는다. 따라서 그 시간 동안만 caching을 하고 이후에는 정보를 버린다.
+
+IETF에서는 추후에 local site에서 ip mapping 정보가 변하는 경우 세상에 update/modify하는 mechanism이 제안되었다.
+
+## DNS protocol, messages
+
+query와 reply 두 가지 종류의 messages를 사용하고, 두 가지는 같은 양식을 갖는다.
+
+msg header
+
+![image](https://user-images.githubusercontent.com/68600592/193620641-ee181e28-b1c9-4dd0-b6ac-996eadf19897.png)
+
+- identification: query를 위한 16bit numbers로 reply시 같은 숫자를 사용한다.
+- flags
+    - query or reply
+    - recursion desired (client: recursion을 원한다.)
+    - recursion available (server: recursion이 가능하다.)
+    - reply is authoritative (reply 정보가 authoritative server인지)
+
 ----------------------------------------------------------------------
 
 `이 아래는 강의 정리가 아닌 따로 조사한 개념들 정리 부분입니다.`
