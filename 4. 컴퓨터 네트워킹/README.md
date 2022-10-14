@@ -746,7 +746,7 @@ authoritative DNS server
 - domain 별 TLD 서버를 알고 있다.
 - 각 site에는 local name server가 있는데, local name server가 모르는 domain에 대한 요청이 root name server로 온다.
 
-## DNS name resolution 예제 (query가 resolve되는 방식)
+### DNS name resolution 예제 (query가 resolve되는 방식)
 
 1. 반복 질의 (iterated query)
 
@@ -762,7 +762,7 @@ authoritative DNS server
 
 재귀 질의 방식의 경우 root, TLD DNS server에 대한 load가 커지는데, 상위 레벨의 서버일수록 load가 증가한다.
 
-## DNS: caching, updating records
+### DNS: caching, updating records
 
 local DNS server가 caching을 하고 있으면, caching 하고 있는 정보는 빠르게 반환해줄 수 있을 것이다. 
 
@@ -772,7 +772,7 @@ local DNS server가 caching을 하고 있으면, caching 하고 있는 정보는
 
 IETF에서는 추후에 local site에서 ip mapping 정보가 변하는 경우 세상에 update/modify하는 mechanism이 제안되었다.
 
-## DNS protocol, messages
+### DNS protocol, messages
 
 query와 reply 두 가지 종류의 messages를 사용하고, 두 가지는 같은 양식을 갖는다.
 
@@ -787,8 +787,98 @@ msg header
     - recursion available (server: recursion이 가능하다.)
     - reply is authoritative (reply 정보가 authoritative server인지)
 
+
+### DNS record
+
+DNS는 분산 DB를 가지고 있으며, 분산 DB에 여러가지 mapping 정보를 가지고 있다.
+
+그 DB에 저장하고 있는 정보를 RR(resource record)라고 부르며, 다음과 같은 형태를 갖고 있다.
+
+`RR format: (name, value, type, ttl)`
+
+- ttl: 정보의 유효 기간
+- name, value: mapping 정보
+- type: name, value가 의미하는 값을 지정
+
+**type에 따른 name, value의 의미**
+
+1. type = A  
+name: hostname  
+value: IP address  
+
+2. type = NS  
+name: domain (e.g. foo.com)  
+value: authoritative name server의 hostname  
+
+3. type = CNAME  
+name: canonical name의 alias name  
+value: canonical name  
+
+e.g. www.ibm.com (alias name) -> servereast.backup2.ibm.com (canonical name)
+
+4. type = MX  
+name: domain name  
+value: name과 연관된 mail server의 이름  
+
+
+### 어떤 종류의 RR(Resource Record)가 각각의 DNS server에 저장되어 있을까?
+
+- Local name server
+- Root: 각 domain에 대한 TLD server RR
+- TLD:: 각 domain에 대한 authoritative server RR
+- Authoritative: hostname -> ip address mapping에 대한 RR
+
+
+## DNS에 record를 추가하는 방법
+
+1. 예를 들어 "Network Utopia"라는 스타트업이 생긱다고 가정하자.
+2. 회사 안에 Authoritative DNS server를 산다.
+    - 웹 서버의 host name -> ip address mapping하는 type A record
+3. Network Solution 같은 DNS registrar에 networkutopia.com 이라는 이름을 등록한다.
+    - authoritative DNS server의 이름과 ip address를 제공해야
+4. DNS registrar에서 두 개의 registrar을 .com TLD 서버에 추가한다.
+    - (networkutopia.com, dns1.networkutopia.com, NS), domain 주소에 해당하는 Authoritative name server의 host name
+    - (dns1.networkutopia.com, 212.212.212.1, A), Authoritative name server의 hostname에 해당하는 ip 주소
+
+
+## P2P 구조의 applications (peer to peer)
+
+- always-on server가 없다!
+- end-system(peer라고 부른다)들이 직접 통신한다.
+- peer들은 network에 연결되었다 끊어졌다를 반복하고, ip 주소가 계속해서 변화한다.
+
+P2P application 예시
+- BitTorrent와 같은 file distribution
+- Skype같은 VoIP
+- 요즘에는 다른 예시가 많을 것 같다.
+
+## 파일 공유(file distribution), Cli-Serv vs P2P
+
+client-server application은 client에서 요청이 들어온만큼 server에서 전송이 필요하며, 모든 client에서는 각각 다운로드가 완료되어야 한다.
+
+client-server application에서 서버에서 제공하는 파일을 다운로드하는데 걸리는 시간은 서버가 클라이언트가 요구하는 모든 파일을 upload하는 시간과 client가 파일을 download하는 시간 중 최대 시간, 이 두 가지에 의존적이게 된다. (사실상 서버에서 해당 파일을 요구하는 수가 많아질수록 service를 위한 시간이 증가한다.)
+
+p2p application에서는 서버가 한 번 파일을 network에 업로드 하는 시간, client가 파일을 가져오는데 걸리는 최대 시간, 가용 가능한 모든 peer가 N개의 파일에 대한 bits를 업로드 하는데 걸리는 시간에 서비스 제공 시간이 의존하게 된다.
+
+따라서 client-server 구조와는 다르게 p2p는 client의 수가 많아질수록 peer의 수가 많아짐을 의미하기 때문에, 서비스를 제공하는 측의 수용량 또한 증가하는 효과를 유발한다.
+
+결론: 어떤 파일에 대한 요구가 늘어날수록 client-server 구조는 서비스 시간이 오래 걸리게 되는 반면, p2p 구조는 일정 시점 이후로는 서비스를 제공하는 측 또한 증가하게 되어 client-server 구조보다 나은 서비스 속도를 제공할 수 있게 된다.
+
+이는 p2p의 장점인 사용자가 많을수록 service capability가 늘어난다는 점 덕분이다.
+
+### BitTorrent (P2P 구조 application 예시)
+
+file이 256KB의 chunks로 나뉘어 지며, torrent 안에 있는 peer들 끼리 파일 chunks를 송수신한다.
+
+여기서 torrent는 하나의 파일에 대한 chunks를 교환하는 peer들의 그룹을 뜻하는 말이다.
+
+또한 각 torrent에 참여하고 있는 peers를 추적하기 위해 tracker가 별도로 존재한다.
+
+
+
 ----------------------------------------------------------------------
 
+# 그냥 혼자 공부한 내용 정리 (강의 외적인거)
 `이 아래는 강의 정리가 아닌 따로 조사한 개념들 정리 부분입니다.`
 
 
