@@ -874,7 +874,83 @@ file이 256KB의 chunks로 나뉘어 지며, torrent 안에 있는 peer들 끼�
 
 또한 각 torrent에 참여하고 있는 peers를 추적하기 위해 tracker가 별도로 존재한다.
 
+## Socket programming
 
+socket은 이전에도 살펴본 바와 동일하게, application layer의 우리의 프로그램과 OS가 관장하는 transport layer 사이에 있는 interface라고 생각하면 된다.
+
+2가지 종류의 transport servecies에 맞는 socket type을 살펴보자!  
+1. UDP: unreliable datagram
+2. TCP: reliable, byte stream-oriented
+
+이건 앞서 살펴본 두 가지의 transport layer services이다.
+
+## Socket programming with UDP
+
+- Server가 먼저 켜져 있어야 한다. (server의 ip 주소와 port #는 명시적으로 알려진 상태)
+- UDP는 client와 server 간의 connedtion 없이 통신을 진행한다. 이를 `데이터 전송 이전에 handshaking 하지 않는다` 라고 말하기도 한다.
+- 전송자(client)는 전송하는 각각의 packet에 ip address와 port #를 첨부하여 전송하고, 수신자(server)는 이를 수신한 packet에서 스스로 추출한다.
+- 이후에 server에서 client로 packet을 전송할 때, data와 함께 client의 address도 packet에 실어서 보내야 한다. (connectionless이므로)
+
+## Socket programming with TCP
+
+Server가 먼저 실행중인 상태에서 client가 서버에 연결되어야 한다.
+- 이후에 server는 `client의 연결 요청을 받아들이기 위해 socket을 생성` (door socket)
+- UDP와는 다르게 handshaking 이후에 datagram을 주고 받는다.
+- handshaking과 함께 socket 생성되며, client에서도 이에 맞춰 server의 응답을 받기 위해 socket 생성후 서버의 socket과 연결된다.
+    - client에서 생성되는 socket은 알아서 TCP 전용으로 놀고있는 port# 하나 할당해 socket을 생성 해준다.
+- 새로운 client 접속시 각각의 client를 위한 socket을 새로 생성해야 함. (생성된 socket은 하나의 client 전용)
+    - connection 있기 때문에, server에서 client로 보낼 때 따로 packet에 client address 첨부할 필요가 없다.
+    - 왜 TCP는 door socket이 있고, client와 연결하기 위해 추가적으로 socket을 생성해야 할 까? => byte stream을 교환하기 때문이다.
+    - 이렇게 생성된 socket의 port#는 프로그래머가 알 필요가 없기 때문에 가려져 있다.
+
+(UDP는 각 message가 독립적이기 때문)
+TCP는 connection 후에 data를 주고받기 때문에, 수신한 packet에서 송신자의 주소 정보를 추출할 필요도 없고, 실려 오지도 않는다.
+
+`사용하는 transport service에 따라 socket에서 다른 작업을 수행하기 때문에 이 파트의 이름이 socket programming이라 이름 붙여진 것 같다.`
+
+
+
+# Chapter 3. Transport layer
+
+## Transport 계층에서 제공하는 서비스들
+
+서로 다른 host의 application process간의 논리적 통신(logical communication)을 제공한다.
+
+가장 기본적으로는 process to process delivery가 가능해야 한다.
+
+transport protocol은 종단 시스템 내부에서 동작하며, 송신측은 app message를 segment로 분해하여 전송하기도 하는데, 이를 transport 프로토콜이 담당하여 분해하여 network layer로 보내준다.
+
+마찬가지로 segment를 message로 결합하는 작업 또한 transport layer의 프로토콜이 진행한다.
+
+이러한 transport layer protocol은 UDP, TCP 두 가지가 있다.
+
+## Transport vs Network
+- 네트워크 계층은 `호스트 간의 논리적 통신`을 담당
+- 트랜스포트 계층은 `호스트에 도착한 메시지`를 목적지 process로 전달하는 역할을 담당(process간의 논리적 통신 담당)
+
+## Multiplexing and Demultiplexing
+
+일반적인 mutiplexing, demultiplexing 용어의 설명
+- multiplexing: 다중화, 여러 개의 저수준의 채널들을 하나의 고수준의 채널로 통합하는 과정
+- demultiplexing: 역다중화, 하나의 고수준의 채널을 여러 개의 저수준의 채널로 분해하는 과정?
+
+여기서의 의미
+- 다중화
+    - client host에 있는 여러 개의 application process에서의 message 들을 목적지 정보를 탑재한 다음 network 계층으로 한 번에 내려보내는 작업을 '다중화'라고 한다.
+- 역다중화
+    - network 계층의 한 길로 전달된 여러 개의 messages들에 찍혀있는 목적지 정보를 확인하여 알맞은 application process로 뿌려주는 작업을 '역다중화'라고 한다.
+
+![image](https://user-images.githubusercontent.com/87526189/186874492-b36a3001-ff92-4748-84bf-1ba51354f02f.png)
+
+역다중화는 위와 같이 packet에 실려 있는 주소 정보를 이용해 역다중화를 진행
+
+1. 호스트가 IP 데이터그램을 수신
+    - 각 datagram은 송신측과 수신측의 ip address를 보유
+    - 각 datagram은 송신측과 수신측의 port #를 보유
+    - 각 datagram은 transport 계층 segment 하나를 전송한다.
+2. 위 정보를 이용해 알맞은 application process에 해당하는 socket에 segment를 전달한다.
+
+`UDP의 경우 host쪽에서 전송하는 packet에는 송신자의 address 첨부할 필요 없다 하였으나 이것은 programming 계층에서 기입할 필요가 없다 뿐이며, socket에서 알아서 기입해서 transport layer로 보내준다.`
 
 ----------------------------------------------------------------------
 
